@@ -9,6 +9,7 @@ merge_derives = false
 max_width = 100
 newline_style = "Unix"
 use_small_heuristics = "MAX"
+chain_width = 60
 
 imports_granularity = "Crate"
 reorder_imports = true
