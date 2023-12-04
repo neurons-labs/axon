@@ -1,0 +1,24 @@
+[package]
+name = "axon_utils"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axon_basic_types.workspace = true
+vlog.workspace = true
+
+serde = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+tracing = {workspace = true}
+
+num = { version = "0.4", features = ["serde"] }
+bigdecimal = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+reqwest = { version = "0.11", features = ["blocking"] }
+itertools = "0.12"
+
+[dev-dependencies]
+serde_json = { workspace = true }

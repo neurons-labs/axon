@@ -9,6 +9,7 @@ edition = "2021"
 [workspace.dependencies]
 axon_basic_types = { path = "crates/lib/basic_types" }
 axon_crypto = { path = "crates/lib/crypto" }
+axon_utils = { path = "crates/lib/utils" }
 
 vlog = { path = "crates/lib/vlog" }
 
@@ -24,3 +25,9 @@ serde = "1.0"
 
 blake2 = "0.10"
 sha2 = "0.10"
+
+tokio = "1.34"
+futures = "0.3"
+async-trait = "0.1"
+
+vetric = { git = "https://github.com/neurons-labs/vetric.git" }
