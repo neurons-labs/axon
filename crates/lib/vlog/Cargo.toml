@@ -1,0 +1,12 @@
+[package]
+name = "vlog"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+chrono = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "time", "json"] }
+sentry = "0.31"
