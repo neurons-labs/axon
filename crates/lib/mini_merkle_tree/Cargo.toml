@@ -1,0 +1,10 @@
+[package]
+name = "axon_mini_merkle_tree"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axon_crypto.workspace = true
+axon_basic_types.workspace = true
+
+once_cell = { workspace = true }

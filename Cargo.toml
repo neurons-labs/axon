@@ -11,6 +11,7 @@ axon_basic_types = { path = "crates/lib/basic_types" }
 axon_crypto = { path = "crates/lib/crypto" }
 axon_utils = { path = "crates/lib/utils" }
 axon_storage = { path = "crates/lib/storage" }
+axon_mini_merkle_tree = { path = "crates/lib/mini_merkle_tree" }
 
 vlog = { path = "crates/lib/vlog" }
 

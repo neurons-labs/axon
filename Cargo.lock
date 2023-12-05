@@ -250,6 +250,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "axon_mini_merkle_tree"
+version = "0.1.0"
+dependencies = [
+ "axon_basic_types",
+ "axon_crypto",
+ "once_cell",
+]
+
+[[package]]
 name = "axon_storage"
 version = "0.1.0"
 dependencies = [
