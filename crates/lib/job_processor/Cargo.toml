@@ -1,0 +1,13 @@
+[package]
+name = "axon_job_processor"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axon_utils.workspace = true
+vetric.workspace = true
+
+anyhow = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+tracing = { workspace = true }
+async-trait = { workspace = true }
