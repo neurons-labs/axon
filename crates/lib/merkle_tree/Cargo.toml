@@ -1,0 +1,29 @@
+[package]
+name = "axon_merkle_tree"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+
+axon_types.workspace = true
+axon_crypto.workspace = true
+axon_storage.workspace = true
+axon_utils.workspace = true
+vetric.workspace = true
+
+once_cell = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+rayon = "1.8"
+leb128 = "0.2.5"
+
+[dev-dependencies]
+assert_matches = "1.5"
+test-casing = "0.1"
+rand = "0.8"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_with = { version = "1", features = ["hex"] }
+tempfile = "3.8"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

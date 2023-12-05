@@ -13,6 +13,8 @@ axon_utils = { path = "crates/lib/utils" }
 axon_storage = { path = "crates/lib/storage" }
 axon_mini_merkle_tree = { path = "crates/lib/mini_merkle_tree" }
 axon_job_processor = { path = "crates/lib/job_processor" }
+axon_merkle_tree = { path = "crates/lib/merkle_tree" }
+axon_types = { path = "crates/lib/types" }
 
 vlog = { path = "crates/lib/vlog" }
 
