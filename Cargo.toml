@@ -33,6 +33,6 @@ sha2 = "0.10"
 
 tokio = "1.34"
 futures = "0.3"
-async-trait = "0.1"
+# async-trait = "0.1"
 
 vetric = { git = "https://github.com/neurons-labs/vetric.git" }
