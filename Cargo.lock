@@ -233,19 +233,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "axon_basic_types"
+name = "axon_core"
 version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "axon_crypto"
 version = "0.1.0"
 dependencies = [
- "axon_basic_types",
+ "axon_primitives",
  "base64",
  "blake2",
  "hex",
@@ -294,9 +289,18 @@ dependencies = [
 name = "axon_mini_merkle_tree"
 version = "0.1.0"
 dependencies = [
- "axon_basic_types",
  "axon_crypto",
+ "axon_primitives",
  "once_cell",
+]
+
+[[package]]
+name = "axon_primitives"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -315,7 +319,7 @@ dependencies = [
 name = "axon_types"
 version = "0.1.0"
 dependencies = [
- "axon_basic_types",
+ "axon_primitives",
  "axon_utils",
  "blake2",
  "serde",
@@ -327,7 +331,7 @@ name = "axon_utils"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axon_basic_types",
+ "axon_primitives",
  "bigdecimal",
  "futures",
  "hex",

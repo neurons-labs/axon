@@ -1,4 +1,4 @@
-use axon_basic_types::{web3::utils::keccak256, B256};
+use axon_primitives::{web3::utils::keccak256, B256};
 
 use crate::hasher::Hasher;
 

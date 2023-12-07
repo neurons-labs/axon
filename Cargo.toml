@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace.dependencies]
-axon_basic_types = { path = "crates/lib/basic_types" }
+axon_primitives = { path = "crates/lib/primitives" }
 axon_crypto = { path = "crates/lib/crypto" }
 axon_utils = { path = "crates/lib/utils" }
 axon_storage = { path = "crates/lib/storage" }

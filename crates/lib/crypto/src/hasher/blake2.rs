@@ -1,4 +1,4 @@
-use axon_basic_types::B256;
+use axon_primitives::B256;
 use blake2::{Blake2s256, Digest};
 
 use crate::hasher::Hasher;

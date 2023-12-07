@@ -1,4 +1,4 @@
-use axon_basic_types::{Address, B256, U256};
+use axon_primitives::{Address, B256, U256};
 use bigdecimal::BigDecimal;
 use num::{
     bigint::ToBigInt,

@@ -1,5 +1,5 @@
 [package]
-name = "axon_basic_types"
+name = "axon_primitives"
 version.workspace = true
 edition.workspace = true
 

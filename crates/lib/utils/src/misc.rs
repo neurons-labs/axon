@@ -1,4 +1,4 @@
-use axon_basic_types::{web3::utils::keccak256, B256, U256};
+use axon_primitives::{web3::utils::keccak256, B256, U256};
 
 pub const fn ceil_div(a: u64, b: u64) -> u64 {
     if a == 0 { a } else { (a - 1) / b + 1 }

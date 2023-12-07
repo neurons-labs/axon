@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-axon_basic_types.workspace = true
+axon_primitives.workspace = true
 vlog.workspace = true
 
 serde = { workspace = true }

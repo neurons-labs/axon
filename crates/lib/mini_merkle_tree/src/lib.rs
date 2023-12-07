@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 #[cfg(test)]
 mod tests;
 
-use axon_basic_types::B256;
+use axon_primitives::B256;
 use axon_crypto::hasher::{keccak::KeccakHasher, Hasher};
 
 /// Maximum supported depth of the tree. 32 corresponds to `2^32` elements in the tree, which
