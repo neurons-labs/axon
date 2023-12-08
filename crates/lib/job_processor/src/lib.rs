@@ -118,6 +118,15 @@ pub trait JobProcessor: Sync + Send {
     ) -> impl std::future::Future<Output = anyhow::Result<()>> + Send {
         async move {
             let attempts = self.get_job_attempts(&job_id).await?;
+            let max_attempts = self.max_attempts();
+            if attempts == max_attempts {
+                METRICS.max_attempts_reached[&(Self::SERVICE_NAME, format!("{job_id:?}"))].inc();
+                tracing::error!(
+                    "Max attempts ({max_attempts}) reached for {} job {:?}",
+                    Self::SERVICE_NAME,
+                    job_id,
+                );
+            }
             let result = loop {
                 tracing::trace!(
                     "Polling {} task with id {:?}. Is finished: {}",
@@ -153,15 +162,6 @@ pub trait JobProcessor: Sync + Send {
                 error_message
             );
 
-            let max_attempts = self.max_attempts();
-            if attempts == max_attempts {
-                METRICS.max_attempts_reached[&(Self::SERVICE_NAME, format!("{job_id:?}"))].inc();
-                tracing::error!(
-                    "Max attempts ({max_attempts}) reached for {} job {:?}",
-                    Self::SERVICE_NAME,
-                    job_id,
-                );
-            }
             self.save_failure(job_id, started_at, error_message).await;
             Ok(())
         }
