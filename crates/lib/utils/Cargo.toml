@@ -12,13 +12,15 @@ tokio = { workspace = true, features = ["time"] }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-tracing = {workspace = true}
+tracing = { workspace = true }
+alloy-sol-types = { workspace = true }
 
 num = { version = "0.4", features = ["serde"] }
 bigdecimal = { version = "0.4", features = ["serde"] }
-hex = "0.4"
 reqwest = { version = "0.11", features = ["blocking"] }
 itertools = "0.12"
+
+zkvm_opcodes = { git = "ssh://git@github.com/neurons-labs/axon-vm.git" }
 
 [dev-dependencies]
 serde_json = { workspace = true }

@@ -1,4 +1,5 @@
 //! Various helpers used in the Axon stack.
+pub mod bytecode;
 mod convert;
 pub mod http_with_retries;
 pub mod misc;
