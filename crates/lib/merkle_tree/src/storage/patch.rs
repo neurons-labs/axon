@@ -64,14 +64,7 @@ impl PatchSet {
         } else {
             vec![]
         };
-        Self::new(
-            manifest,
-            version,
-            Root::Empty,
-            HashMap::new(),
-            stale_keys,
-            Operation::Insert,
-        )
+        Self::new(manifest, version, Root::Empty, HashMap::new(), stale_keys, Operation::Insert)
     }
 
     pub(super) fn new(
@@ -87,10 +80,7 @@ impl PatchSet {
 
         nodes.shrink_to_fit(); // We never insert into `nodes` later
         stale_keys.shrink_to_fit();
-        let partial_patch = PartialPatchSet {
-            root: Some(root),
-            nodes,
-        };
+        let partial_patch = PartialPatchSet { root: Some(root), nodes };
         let updated_version = match &operation {
             Operation::Insert => None,
             Operation::Update => Some(version),
@@ -164,10 +154,7 @@ struct WorkingNode {
 
 impl WorkingNode {
     fn new(inner: Node, prev_version: Option<u64>) -> Self {
-        Self {
-            inner,
-            prev_version,
-        }
+        Self { inner, prev_version }
     }
 }
 
@@ -201,10 +188,7 @@ impl WorkingPatchSet {
             }
             Root::Empty => Vec::new(),
         };
-        Self {
-            root_version,
-            changes_by_nibble_count,
-        }
+        Self { root_version, changes_by_nibble_count }
     }
 
     pub fn root_version(&self) -> u64 {
@@ -353,11 +337,8 @@ impl WorkingPatchSet {
         hasher: &dyn HashTree,
     ) -> (ValueHash, PatchSet, HashingStats) {
         let mut stats = HashingStats::default();
-        let (root_hash, patch) = self.finalize_inner(
-            manifest,
-            leaf_count,
-            operation,
-            |nibble_count, level_changes| {
+        let (root_hash, patch) =
+            self.finalize_inner(manifest, leaf_count, operation, |nibble_count, level_changes| {
                 let started_at = Instant::now();
                 let tree_level = nibble_count * 4;
                 // `into_par_iter()` below uses `rayon` to parallelize hash computations.
@@ -373,8 +354,7 @@ impl WorkingPatchSet {
                     .collect::<Vec<_>>();
                 stats.hashing_duration += started_at.elapsed();
                 output
-            },
-        );
+            });
         let root_hash = root_hash.unwrap_or_else(|| hasher.empty_tree_hash());
         (root_hash, patch, stats)
     }
@@ -562,10 +542,7 @@ impl WorkingPatchSet {
         // All parents must be set at this point.
         let longest_prefixes = longest_prefixes.into_iter().map(Option::unwrap).collect();
 
-        LoadAncestorsResult {
-            longest_prefixes,
-            db_reads,
-        }
+        LoadAncestorsResult { longest_prefixes, db_reads }
     }
 
     pub(super) fn traverse(&self, key: Key, parent_nibbles: &Nibbles) -> TraverseOutcome {
@@ -609,10 +586,7 @@ impl WorkingPatchSet {
             }
         };
 
-        let result = LoadAncestorsResult {
-            longest_prefixes: vec![nibbles],
-            db_reads,
-        };
+        let result = LoadAncestorsResult { longest_prefixes: vec![nibbles], db_reads };
         Some((greatest_leaf, result))
     }
 
@@ -660,9 +634,7 @@ impl WorkingPatchSet {
             }
 
             let parent = self.get_mut(&parent_nibbles);
-            let Some(Node::Internal(parent)) = parent else {
-                unreachable!()
-            };
+            let Some(Node::Internal(parent)) = parent else { unreachable!() };
             let parent_level = parent_nibbles.nibble_count() * 4;
             parent
                 .updater(hasher, parent_level, last_nibble)
@@ -710,10 +682,7 @@ mod tests {
 
         for (i, part) in parts.iter().enumerate() {
             let part_len = patch_len(part);
-            assert!(
-                (15..=17).contains(&part_len),
-                "unexpected {i}th part length: {part_len}"
-            );
+            assert!((15..=17).contains(&part_len), "unexpected {i}th part length: {part_len}");
 
             let first_nibble = u8::try_from(i).unwrap();
             let levels = part.changes_by_nibble_count.iter().skip(1);

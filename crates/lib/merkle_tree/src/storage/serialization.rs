@@ -26,11 +26,7 @@ impl LeafNode {
         let leaf_index = leb128::read::unsigned(&mut bytes).map_err(|err| {
             DeserializeErrorKind::Leb128(err).with_context(ErrorContext::LeafIndex)
         })?;
-        Ok(Self {
-            full_key,
-            value_hash,
-            leaf_index,
-        })
+        Ok(Self { full_key, value_hash, leaf_index })
     }
 
     pub(super) fn serialize(&self, buffer: &mut Vec<u8>) {
@@ -79,11 +75,7 @@ impl ChildRef {
         let version = leb128::read::unsigned(buffer)
             .map_err(|err| DeserializeErrorKind::Leb128(err).with_context(ErrorContext::Version))?;
 
-        Ok(Self {
-            hash,
-            version,
-            is_leaf,
-        })
+        Ok(Self { hash, version, is_leaf })
     }
 
     fn serialize(&self, buffer: &mut Vec<u8>) {
@@ -95,11 +87,7 @@ impl ChildRef {
     }
 
     fn kind(&self) -> ChildKind {
-        if self.is_leaf {
-            ChildKind::Leaf
-        } else {
-            ChildKind::Internal
-        }
+        if self.is_leaf { ChildKind::Leaf } else { ChildKind::Internal }
     }
 }
 
@@ -213,10 +201,7 @@ impl TreeTags {
                 "hasher" => hasher = Some(value.to_owned()),
                 "depth" => {
                     let parsed = value.parse::<usize>().map_err(|err| {
-                        DeserializeErrorKind::MalformedTag {
-                            name: "depth",
-                            err: err.into(),
-                        }
+                        DeserializeErrorKind::MalformedTag { name: "depth", err: err.into() }
                     })?;
                     depth = Some(parsed);
                 }
@@ -277,16 +262,9 @@ impl Manifest {
     pub(super) fn deserialize(mut bytes: &[u8]) -> Result<Self, DeserializeError> {
         let version_count =
             leb128::read::unsigned(&mut bytes).map_err(DeserializeErrorKind::Leb128)?;
-        let tags = if bytes.is_empty() {
-            None
-        } else {
-            Some(TreeTags::deserialize(&mut bytes)?)
-        };
+        let tags = if bytes.is_empty() { None } else { Some(TreeTags::deserialize(&mut bytes)?) };
 
-        Ok(Self {
-            version_count,
-            tags,
-        })
+        Ok(Self { version_count, tags })
     }
 
     pub(super) fn serialize(&self, buffer: &mut Vec<u8>) {
@@ -350,10 +328,7 @@ mod tests {
         mangled_buffer[3] = b'A';
         let err = Manifest::deserialize(&mangled_buffer).unwrap_err();
         let err = err.to_string();
-        assert!(
-            err.contains("unknown tag `Architecture` in tree manifest"),
-            "{err}"
-        );
+        assert!(err.contains("unknown tag `Architecture` in tree manifest"), "{err}");
 
         let mut mangled_buffer = buffer.clone();
         mangled_buffer.truncate(mangled_buffer.len() - 1);
@@ -366,19 +341,13 @@ mod tests {
         mangled_buffer[1] = 2; // decreased number of tags
         let err = Manifest::deserialize(&mangled_buffer).unwrap_err();
         let err = err.to_string();
-        assert!(
-            err.contains("missing required tag `hasher` in tree manifest"),
-            "{err}"
-        );
+        assert!(err.contains("missing required tag `hasher` in tree manifest"), "{err}");
     }
 
     #[test]
     fn serializing_leaf_node() {
-        let leaf = LeafNode::new(TreeEntry::new(
-            U256::from_limbs([513, 0, 0, 0]),
-            42,
-            B256::new([4; 32]),
-        ));
+        let leaf =
+            LeafNode::new(TreeEntry::new(U256::from_limbs([513, 0, 0, 0]), 42, B256::new([4; 32])));
         let mut buffer = vec![];
         leaf.serialize(&mut buffer);
         assert_eq!(buffer[..30], [0; 30]); // padding for the key
@@ -435,11 +404,8 @@ mod tests {
 
     #[test]
     fn serializing_root_with_leaf() {
-        let leaf = LeafNode::new(TreeEntry::new(
-            U256::from_limbs([513, 0, 0, 0]),
-            42,
-            B256::new([4; 32]),
-        ));
+        let leaf =
+            LeafNode::new(TreeEntry::new(U256::from_limbs([513, 0, 0, 0]), 42, B256::new([4; 32])));
         let root = Root::new(1, leaf.into());
         let mut buffer = vec![];
         root.serialize(&mut buffer);

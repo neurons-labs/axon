@@ -5,7 +5,6 @@ edition.workspace = true
 
 [dependencies]
 axon_types.workspace = true
-axon_crypto.workspace = true
 axon_storage.workspace = true
 axon_utils.workspace = true
 vetric.workspace = true

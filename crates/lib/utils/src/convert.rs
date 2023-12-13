@@ -152,7 +152,7 @@ pub fn b256_from_low_u64_be(value: u64) -> B256 {
     B256::left_padding_from(&v)
 }
 
-pub fn low_u64_of_u256(value: &U256) -> u64{
+pub fn low_u64_of_u256(value: &U256) -> u64 {
     value.as_limbs()[0]
 }
 

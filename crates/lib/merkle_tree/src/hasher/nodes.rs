@@ -31,10 +31,7 @@ pub(crate) struct MerklePath {
 
 impl MerklePath {
     pub fn new(level: usize) -> Self {
-        Self {
-            current_level: level,
-            hashes: Vec::new(),
-        }
+        Self { current_level: level, hashes: Vec::new() }
     }
 
     pub(crate) fn push(&mut self, hasher: &HasherWithStats<'_>, maybe_hash: Option<ValueHash>) {
@@ -179,12 +176,7 @@ impl InternalNode {
         level: usize,
         nibble: u8,
     ) -> InternalNodeUpdater<'s, 'h> {
-        InternalNodeUpdater {
-            node: self,
-            hasher,
-            level,
-            nibble,
-        }
+        InternalNodeUpdater { node: self, hasher, level, nibble }
     }
 }
 
@@ -204,11 +196,8 @@ impl InternalNodeUpdater<'_, '_> {
             child_ref.version = version;
             child_ref.is_leaf = is_leaf;
         } else {
-            let child_ref = if is_leaf {
-                ChildRef::leaf(version)
-            } else {
-                ChildRef::internal(version)
-            };
+            let child_ref =
+                if is_leaf { ChildRef::leaf(version) } else { ChildRef::internal(version) };
             self.node.insert_child_ref(self.nibble, child_ref);
         }
     }
@@ -258,8 +247,10 @@ impl Node {
 
 #[cfg(test)]
 mod tests {
-    use axon_crypto::hasher::{blake2::Blake2Hasher, Hasher};
-    use axon_types::B256;
+    use axon_types::{
+        primitives::hasher::{blake2::Blake2Hasher, Hasher},
+        B256,
+    };
 
     use super::*;
 

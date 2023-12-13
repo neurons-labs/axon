@@ -71,30 +71,18 @@ impl TreeUpdater {
         };
 
         for instruction in instructions {
-            let InstructionWithPrecomputes {
-                index,
-                instruction,
-                parent_nibbles,
-            } = instruction;
+            let InstructionWithPrecomputes { index, instruction, parent_nibbles } = instruction;
 
             let log = match instruction {
                 TreeInstruction::Write(entry) => {
                     let (log, leaf_data) = self.insert(entry, &parent_nibbles);
                     let (new_root_hash, merkle_path) = self.update_node_hashes(hasher, &leaf_data);
                     root_hash = new_root_hash;
-                    TreeLogEntryWithProof {
-                        base: log,
-                        merkle_path,
-                        root_hash,
-                    }
+                    TreeLogEntryWithProof { base: log, merkle_path, root_hash }
                 }
                 TreeInstruction::Read(key) => {
                     let (log, merkle_path) = self.prove(hasher, key, &parent_nibbles);
-                    TreeLogEntryWithProof {
-                        base: log,
-                        merkle_path,
-                        root_hash,
-                    }
+                    TreeLogEntryWithProof { base: log, merkle_path, root_hash }
                 }
             };
             logs.push((index, log));
@@ -136,9 +124,7 @@ impl TreeUpdater {
             }
 
             let parent = self.patch_set.get_mut(&parent_nibbles);
-            let Some(Node::Internal(parent)) = parent else {
-                unreachable!()
-            };
+            let Some(Node::Internal(parent)) = parent else { unreachable!() };
             let parent_level = parent_nibbles.nibble_count() * 4;
             let mut updater = parent.updater(hasher, parent_level, last_nibble);
             node_hash = updater.update_child_hash(node_hash);
@@ -172,10 +158,9 @@ impl TreeUpdater {
     }
 
     fn split(self) -> [Self; SUBTREE_COUNT] {
-        self.patch_set.split().map(|patch_set| Self {
-            metrics: TreeUpdaterStats::default(),
-            patch_set,
-        })
+        self.patch_set
+            .split()
+            .map(|patch_set| Self { metrics: TreeUpdaterStats::default(), patch_set })
     }
 
     fn merge(mut self, other: Self) -> Self {
@@ -304,10 +289,7 @@ impl<'a, DB: Database + ?Sized> Storage<'a, DB> {
             .updater
             .patch_set
             .finalize_without_hashing(self.manifest, self.leaf_count);
-        let block_output = BlockOutputWithProofs {
-            logs,
-            leaf_count: self.leaf_count,
-        };
+        let block_output = BlockOutputWithProofs { logs, leaf_count: self.leaf_count };
         GENERAL_METRICS.leaf_count.set(self.leaf_count);
 
         (block_output, patch)
@@ -339,11 +321,7 @@ impl InstructionWithPrecomputes {
         for (index, (instruction, parent_nibbles)) in it.enumerate() {
             let first_nibble = Nibbles::nibble(&instruction.key(), 0);
             let part = &mut parts[first_nibble as usize];
-            part.push(Self {
-                index,
-                instruction,
-                parent_nibbles,
-            });
+            part.push(Self { index, instruction, parent_nibbles });
         }
         parts
     }

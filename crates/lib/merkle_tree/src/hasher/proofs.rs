@@ -40,10 +40,7 @@ impl BlockOutputWithProofs {
                 TreeLogEntry::Inserted | TreeLogEntry::ReadMissingKey => {
                     TreeEntry::empty(instruction.key())
                 }
-                TreeLogEntry::Updated {
-                    leaf_index,
-                    previous_value: value,
-                }
+                TreeLogEntry::Updated { leaf_index, previous_value: value }
                 | TreeLogEntry::Read { leaf_index, value } => {
                     TreeEntry::new(instruction.key(), leaf_index, value)
                 }
@@ -94,7 +91,6 @@ impl TreeEntryWithProof {
 ///
 /// A streaming approach is used. `TreeRange` occupies `O(1)` RAM w.r.t. the number of entries.
 /// `TreeRange` consists of `TREE_DEPTH = 256` hashes and a constant amount of other data.
-//
 // We keep a *left contour* of hashes, i.e., known hashes to the left of the last processed key.
 // Initially, the left contour is a filtered Merkle path for the start entry; we only take into
 // account left hashes in the path (ones for which the corresponding start key bit is 1), and

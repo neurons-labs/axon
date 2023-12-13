@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 mod nodes;
 mod proofs;
 
-use axon_crypto::hasher::{blake2::Blake2Hasher, Hasher};
+use axon_types::primitives::hasher::{blake2::Blake2Hasher, Hasher};
 
 pub(crate) use self::nodes::{InternalNodeCache, MerklePath};
 pub use self::proofs::TreeRangeDigest;
@@ -82,10 +82,7 @@ impl dyn HashTree + '_ {
     }
 
     pub(crate) fn with_stats<'a>(&'a self, stats: &'a HashingStats) -> HasherWithStats<'a> {
-        HasherWithStats {
-            shared_metrics: Some(stats),
-            ..HasherWithStats::new(self)
-        }
+        HasherWithStats { shared_metrics: Some(stats), ..HasherWithStats::new(self) }
     }
 }
 
@@ -95,7 +92,7 @@ impl fmt::Debug for dyn HashTree + '_ {
     }
 }
 
-/// No-op hasher that returns `H256::ZERO` for all operations.
+/// No-op hasher that returns `B256::ZERO` for all operations.
 impl HashTree for () {
     fn name(&self) -> &'static str {
         "no_op256"
@@ -140,11 +137,9 @@ impl HashTree for Blake2Hasher {
 
 fn compute_empty_tree_hashes() -> Vec<ValueHash> {
     let empty_leaf_hash = Blake2Hasher.hash_bytes(&[0_u8; 40]);
-    iter::successors(Some(empty_leaf_hash), |hash| {
-        Some(Blake2Hasher.hash_branch(hash, hash))
-    })
-    .take(TREE_DEPTH + 1)
-    .collect()
+    iter::successors(Some(empty_leaf_hash), |hash| Some(Blake2Hasher.hash_branch(hash, hash)))
+        .take(TREE_DEPTH + 1)
+        .collect()
 }
 
 /// Hasher that keeps track of hashing metrics.
@@ -161,11 +156,7 @@ pub(crate) struct HasherWithStats<'a> {
 
 impl<'a> HasherWithStats<'a> {
     pub fn new(inner: &'a dyn HashTree) -> Self {
-        Self {
-            inner,
-            shared_metrics: None,
-            local_hashed_bytes: 0,
-        }
+        Self { inner, shared_metrics: None, local_hashed_bytes: 0 }
     }
 }
 

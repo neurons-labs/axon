@@ -39,7 +39,7 @@
 
 use std::time::Instant;
 
-use axon_crypto::hasher::blake2::Blake2Hasher;
+use axon_types::primitives::hasher::blake2::Blake2Hasher;
 
 use crate::{
     hasher::{HashTree, HasherWithStats},
@@ -82,18 +82,14 @@ impl<DB: PruneDatabase, H: HashTree> MerkleTreeRecovery<DB, H> {
             if manifest.version_count > 0 {
                 let expected_version = manifest.version_count - 1;
                 assert_eq!(
-                    recovered_version,
-                    expected_version,
+                    recovered_version, expected_version,
                     "Requested to recover tree version {recovered_version}, but it is currently being recovered \
                     for version {expected_version}"
                 );
             }
             manifest
         } else {
-            Manifest {
-                version_count: recovered_version + 1,
-                tags: None,
-            }
+            Manifest { version_count: recovered_version + 1, tags: None }
         };
 
         manifest.version_count = recovered_version + 1;
@@ -106,11 +102,7 @@ impl<DB: PruneDatabase, H: HashTree> MerkleTreeRecovery<DB, H> {
         }
         db.apply_patch(PatchSet::from_manifest(manifest));
 
-        Self {
-            db,
-            hasher,
-            recovered_version,
-        }
+        Self { db, hasher, recovered_version }
     }
 
     /// Returns the root hash of the recovered tree at this point.
@@ -208,15 +200,10 @@ impl<DB: PruneDatabase, H: HashTree> MerkleTreeRecovery<DB, H> {
         let stale_keys = self.db.stale_keys(self.recovered_version);
         let stale_keys_len = stale_keys.len();
         tracing::debug!("Pruning {stale_keys_len} accumulated stale keys");
-        let prune_patch = PrunePatchSet::new(
-            stale_keys,
-            self.recovered_version..self.recovered_version + 1,
-        );
+        let prune_patch =
+            PrunePatchSet::new(stale_keys, self.recovered_version..self.recovered_version + 1);
         self.db.prune(prune_patch);
-        tracing::debug!(
-            "Pruned {stale_keys_len} stale keys in {:?}",
-            started_at.elapsed()
-        );
+        tracing::debug!("Pruned {stale_keys_len} stale keys in {:?}", started_at.elapsed());
 
         manifest
             .tags
@@ -226,10 +213,7 @@ impl<DB: PruneDatabase, H: HashTree> MerkleTreeRecovery<DB, H> {
         tracing::debug!("Updated tree manifest to mark recovery as complete");
 
         // We don't need additional integrity checks since they were performed in the constructor
-        MerkleTree {
-            db: self.db,
-            hasher: self.hasher,
-        }
+        MerkleTree { db: self.db, hasher: self.hasher }
     }
 }
 
@@ -277,10 +261,7 @@ mod tests {
 
         assert_eq!(tree.latest_version(), Some(42));
         let mut hasher = HasherWithStats::new(&Blake2Hasher);
-        assert_eq!(
-            tree.latest_root_hash(),
-            LeafNode::new(recovery_entry).hash(&mut hasher, 0)
-        );
+        assert_eq!(tree.latest_root_hash(), LeafNode::new(recovery_entry).hash(&mut hasher, 0));
         tree.verify_consistency(42, true).unwrap();
     }
 }

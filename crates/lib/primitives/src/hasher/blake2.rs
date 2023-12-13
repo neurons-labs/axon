@@ -1,22 +1,22 @@
-use axon_primitives::B256;
-use sha2::{Digest, Sha256};
+use alloy_primitives::B256;
+use blake2::{Blake2s256, Digest};
 
 use crate::hasher::Hasher;
 
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Sha256Hasher;
+#[derive(Default, Clone, Debug)]
+pub struct Blake2Hasher;
 
-impl Hasher for Sha256Hasher {
+impl Hasher for Blake2Hasher {
     type Hash = B256;
 
     fn hash_bytes(&self, value: &[u8]) -> Self::Hash {
-        let mut sha256 = Sha256::new();
-        sha256.update(value);
-        B256::new(sha256.finalize().into())
+        let mut hasher = Blake2s256::new();
+        hasher.update(value);
+        B256::new(hasher.finalize().into())
     }
 
     fn compress(&self, lhs: &Self::Hash, rhs: &Self::Hash) -> Self::Hash {
-        let mut hasher = Sha256::new();
+        let mut hasher = Blake2s256::new();
         hasher.update(lhs.as_slice());
         hasher.update(rhs.as_slice());
         B256::new(hasher.finalize().into())

@@ -60,7 +60,7 @@ pub mod unstable {
     };
 }
 
-use axon_crypto::hasher::blake2::Blake2Hasher;
+use axon_types::primitives::hasher::blake2::Blake2Hasher;
 
 pub use crate::{
     errors::NoVersionError,

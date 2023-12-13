@@ -5,6 +5,7 @@
 #[macro_use]
 mod macros;
 
+pub mod hasher;
 pub mod network;
 
 use std::{

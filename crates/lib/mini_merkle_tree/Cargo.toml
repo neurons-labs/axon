@@ -4,7 +4,6 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-axon_crypto.workspace = true
 axon_primitives.workspace = true
 
 once_cell = { workspace = true }

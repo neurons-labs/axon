@@ -1,8 +1,8 @@
 //! Tying the Merkle tree implementation to the problem domain.
 
-use axon_crypto::hasher::blake2::Blake2Hasher;
 use axon_storage::RocksDB;
 use axon_types::{
+    primitives::hasher::blake2::Blake2Hasher,
     proofs::{PrepareBasicCircuitsJob, StorageLogMetadata},
     writes::{InitialStorageWrite, RepeatedStorageWrite, StateDiffRecord},
     L1BatchNumber, StorageKey, U256,
@@ -105,11 +105,7 @@ impl AxonTree {
 
     fn new_with_mode(db: RocksDB<MerkleTreeColumnFamily>, mode: TreeMode) -> Self {
         let wrapper = RocksDBWrapper::from(db);
-        Self {
-            tree: MerkleTree::new(Patched::new(wrapper)),
-            thread_pool: None,
-            mode,
-        }
+        Self { tree: MerkleTree::new(Patched::new(wrapper)), thread_pool: None, mode }
     }
 
     /// Returns a readonly handle to the tree. The handle **does not** see uncommitted changes to
@@ -244,8 +240,10 @@ impl AxonTree {
                     TreeInstruction::Read(_) => match log.base {
                         TreeLogEntry::Read { leaf_index, .. } => leaf_index,
                         TreeLogEntry::ReadMissingKey => 0,
-                        _ => unreachable!("Read instructions always transform to Read / ReadMissingKey log entries"),
-                    }
+                        _ => unreachable!(
+                            "Read instructions always transform to Read / ReadMissingKey log entries"
+                        ),
+                    },
                 },
                 value_written,
                 value_read: match log.base {
@@ -298,11 +296,7 @@ impl AxonTree {
     fn extract_writes(
         logs: impl Iterator<Item = TreeLogEntry>,
         entries: impl Iterator<Item = TreeEntry<StorageKey>>,
-    ) -> (
-        Vec<InitialStorageWrite>,
-        Vec<RepeatedStorageWrite>,
-        Vec<StateDiffRecord>,
-    ) {
+    ) -> (Vec<InitialStorageWrite>, Vec<RepeatedStorageWrite>, Vec<StateDiffRecord>) {
         let mut initial_writes = vec![];
         let mut repeated_writes = vec![];
         let mut state_diffs = vec![];
@@ -324,10 +318,7 @@ impl AxonTree {
                         final_value: b256_to_u256(input_entry.value),
                     });
                 }
-                TreeLogEntry::Updated {
-                    previous_value: prev_value_hash,
-                    leaf_index,
-                } => {
+                TreeLogEntry::Updated { previous_value: prev_value_hash, leaf_index } => {
                     if prev_value_hash != input_entry.value {
                         repeated_writes.push(RepeatedStorageWrite {
                             index: input_entry.leaf_index,

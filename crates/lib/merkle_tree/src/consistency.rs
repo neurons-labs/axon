@@ -33,12 +33,7 @@ pub enum ConsistencyError {
         "internal node at {key} specifies that child hash at `{nibble:x}` \
          is {expected}, but it actually is {actual}"
     )]
-    HashMismatch {
-        key: NodeKey,
-        nibble: u8,
-        expected: ValueHash,
-        actual: ValueHash,
-    },
+    HashMismatch { key: NodeKey, nibble: u8, expected: ValueHash, actual: ValueHash },
     #[error(
         "leaf at {key} specifies its full key as {full_key}, which doesn't start with the node key"
     )]
@@ -49,11 +44,7 @@ pub enum ConsistencyError {
         "leaf with key {full_key} has index {index}, which is greater than \
          leaf count {leaf_count} specified at tree root"
     )]
-    LeafIndexOverflow {
-        index: u64,
-        leaf_count: u64,
-        full_key: Key,
-    },
+    LeafIndexOverflow { index: u64, leaf_count: u64, full_key: Key },
     #[error("leaf with key {full_key} has same index {index} as another key")]
     DuplicateLeafIndex { index: u64, full_key: Key },
     #[error("internal node with key {key} does not have children")]
@@ -116,10 +107,7 @@ impl<DB: Database, H: HashTree> MerkleTree<DB, H> {
             Node::Leaf(leaf) => {
                 let full_key_nibbles = Nibbles::new(&leaf.full_key, key.nibbles.nibble_count());
                 if full_key_nibbles != key.nibbles {
-                    return Err(ConsistencyError::FullKeyMismatch {
-                        key,
-                        full_key: leaf.full_key,
-                    });
+                    return Err(ConsistencyError::FullKeyMismatch { key, full_key: leaf.full_key });
                 }
                 if let Some(leaf_data) = leaf_data {
                     leaf_data.insert_leaf(leaf)?;
@@ -132,10 +120,7 @@ impl<DB: Database, H: HashTree> MerkleTree<DB, H> {
                     return Err(ConsistencyError::EmptyInternalNode { key });
                 };
                 if !key.is_empty() && expected_version != key.version {
-                    return Err(ConsistencyError::KeyVersionMismatch {
-                        key,
-                        expected_version,
-                    });
+                    return Err(ConsistencyError::KeyVersionMismatch { key, expected_version });
                 } else if key.is_empty() && expected_version > key.version {
                     return Err(ConsistencyError::RootVersionMismatch {
                         max_child_version: expected_version,
@@ -202,9 +187,7 @@ impl LeafConsistencyData {
 
     fn insert_leaf(&self, leaf: &LeafNode) -> Result<(), ConsistencyError> {
         if leaf.leaf_index == 0 {
-            return Err(ConsistencyError::ZeroIndex {
-                full_key: leaf.full_key,
-            });
+            return Err(ConsistencyError::ZeroIndex { full_key: leaf.full_key });
         }
         if leaf.leaf_index > self.expected_leaf_count {
             return Err(ConsistencyError::LeafIndexOverflow {
@@ -364,13 +347,7 @@ mod tests {
         *leaf_count = NonZeroU64::new(42).unwrap();
 
         let err = deterministic_verify_consistency(db).unwrap_err();
-        assert_matches!(
-            err,
-            ConsistencyError::LeafCountMismatch {
-                expected: 42,
-                actual: 2
-            }
-        );
+        assert_matches!(err, ConsistencyError::LeafCountMismatch { expected: 42, actual: 2 });
     }
 
     #[test]
@@ -378,11 +355,7 @@ mod tests {
         let mut db = prepare_database();
 
         let root = db.root_mut(0).unwrap();
-        let Root::Filled {
-            node: Node::Internal(node),
-            ..
-        } = root
-        else {
+        let Root::Filled { node: Node::Internal(node), .. } = root else {
             panic!("unexpected root: {root:?}");
         };
         let child_ref = node.child_ref_mut(0xd).unwrap();
@@ -435,14 +408,7 @@ mod tests {
         leaf_key.unwrap();
 
         let err = deterministic_verify_consistency(db).unwrap_err();
-        assert_matches!(
-            err,
-            ConsistencyError::LeafIndexOverflow {
-                index: 42,
-                leaf_count: 2,
-                ..
-            }
-        );
+        assert_matches!(err, ConsistencyError::LeafIndexOverflow { index: 42, leaf_count: 2, .. });
     }
 
     #[test]
@@ -498,22 +464,13 @@ mod tests {
     #[test]
     fn root_version_mismatch_error() {
         let mut db = prepare_database();
-        let Some(Root::Filled {
-            node: Node::Internal(node),
-            ..
-        }) = db.root_mut(0)
-        else {
+        let Some(Root::Filled { node: Node::Internal(node), .. }) = db.root_mut(0) else {
             unreachable!();
         };
         let (nibble, _) = node.children().next().unwrap();
         node.child_ref_mut(nibble).unwrap().version = 42;
 
         let err = deterministic_verify_consistency(db).unwrap_err();
-        assert_matches!(
-            err,
-            ConsistencyError::RootVersionMismatch {
-                max_child_version: 42,
-            }
-        );
+        assert_matches!(err, ConsistencyError::RootVersionMismatch { max_child_version: 42 });
     }
 }

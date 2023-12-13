@@ -43,10 +43,7 @@ pub enum DeserializeErrorKind {
 impl DeserializeErrorKind {
     /// Appends a context to this error.
     pub fn with_context(self, context: ErrorContext) -> DeserializeError {
-        DeserializeError {
-            kind: self,
-            contexts: vec![context],
-        }
+        DeserializeError { kind: self, contexts: vec![context] }
     }
 }
 
@@ -100,10 +97,7 @@ pub struct DeserializeError {
 
 impl From<DeserializeErrorKind> for DeserializeError {
     fn from(kind: DeserializeErrorKind) -> Self {
-        Self {
-            kind,
-            contexts: Vec::new(),
-        }
+        Self { kind, contexts: Vec::new() }
     }
 }
 
@@ -144,20 +138,14 @@ pub struct NoVersionError {
 
 impl fmt::Display for NoVersionError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let &Self {
-            missing_version,
-            version_count,
-        } = self;
+        let &Self { missing_version, version_count } = self;
         if missing_version >= version_count {
             write!(
                 formatter,
                 "Version {missing_version} does not exist in Merkle tree; it has {version_count} versions"
             )
         } else {
-            write!(
-                formatter,
-                "Version {missing_version} was pruned from Merkle tree"
-            )
+            write!(formatter, "Version {missing_version} was pruned from Merkle tree")
         }
     }
 }
@@ -182,10 +170,7 @@ mod tests {
             .with_context(ErrorContext::Leaf(key));
         let err = err.to_string();
 
-        assert!(
-            err.starts_with("[in leaf index, leaf at `5:deadb`]"),
-            "{err}"
-        );
+        assert!(err.starts_with("[in leaf index, leaf at `5:deadb`]"), "{err}");
         assert!(err.contains("failed reading LEB128-encoded value"), "{err}");
     }
 
@@ -197,10 +182,7 @@ mod tests {
             .with_context(ErrorContext::InternalNode(key));
         let err = err.to_string();
 
-        assert!(
-            err.starts_with("[in children mask, internal node at `7:dead`]"),
-            "{err}"
-        );
+        assert!(err.starts_with("[in children mask, internal node at `7:dead`]"), "{err}");
         assert!(err.ends_with("unexpected end of input"), "{err}");
     }
 }
