@@ -68,14 +68,14 @@ pub fn b256_to_u256(num: B256) -> U256 {
     U256::from_be_slice(num.as_slice())
 }
 
-pub fn address_to_h256(address: &Address) -> B256 {
+pub fn address_to_b256(address: &Address) -> B256 {
     let mut buffer = [0u8; 32];
     buffer[12..].copy_from_slice(address.as_slice());
     B256::new(buffer)
 }
 
 pub fn address_to_u256(address: &Address) -> U256 {
-    b256_to_u256(address_to_h256(address))
+    b256_to_u256(address_to_b256(address))
 }
 
 pub fn bytes_to_chunks(bytes: &[u8]) -> Vec<[u8; 32]> {
@@ -145,6 +145,29 @@ pub fn u32_to_b256(value: u32) -> B256 {
 /// Converts `U256` value into bytes array
 pub fn u256_to_bytes_be(value: &U256) -> Vec<u8> {
     value.to_be_bytes_vec()
+}
+
+pub fn b256_from_low_u64_be(value: u64) -> B256 {
+    let v = value.to_be_bytes();
+    B256::left_padding_from(&v)
+}
+
+pub fn low_u64_of_u256(value: &U256) -> u64{
+    value.as_limbs()[0]
+}
+
+pub fn low_u128_of_u256(value: &U256) -> u128 {
+    ((value.as_limbs()[1] as u128) << 64) + (value.as_limbs()[0]) as u128
+}
+
+pub fn u256_as_u128(value: &U256) -> u128 {
+    let limbs = value.as_limbs();
+    for limb in limbs.iter().take(4).skip(2) {
+        if *limb != 0 {
+            panic!("Integer overflow when casting to u128")
+        }
+    }
+    low_u128_of_u256(value)
 }
 
 #[cfg(test)]
