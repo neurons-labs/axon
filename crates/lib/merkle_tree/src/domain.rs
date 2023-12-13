@@ -1,6 +1,5 @@
 //! Tying the Merkle tree implementation to the problem domain.
 
-use axon_storage::RocksDB;
 use axon_types::{
     primitives::hasher::blake2::Blake2Hasher,
     proofs::{PrepareBasicCircuitsJob, StorageLogMetadata},
@@ -11,7 +10,7 @@ use axon_utils::b256_to_u256;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 
 use crate::{
-    storage::{MerkleTreeColumnFamily, PatchSet, Patched, RocksDBWrapper},
+    storage::{PatchSet, Patched, RocksDBWrapper},
     types::{
         Key, Root, TreeEntry, TreeEntryWithProof, TreeInstruction, TreeLogEntry, ValueHash,
         TREE_DEPTH,
@@ -94,19 +93,18 @@ impl AxonTree {
     }
 
     /// Creates a tree with the full processing mode.
-    pub fn new(db: RocksDB<MerkleTreeColumnFamily>) -> Self {
+    pub fn new(db: RocksDBWrapper) -> Self {
         Self::new_with_mode(db, TreeMode::Full)
     }
 
     /// Creates a tree with the lightweight processing mode.
-    pub fn new_lightweight(db: RocksDB<MerkleTreeColumnFamily>) -> Self {
+    pub fn new_lightweight(db: RocksDBWrapper) -> Self {
         Self::new_with_mode(db, TreeMode::Lightweight)
     }
 
-    fn new_with_mode(db: RocksDB<MerkleTreeColumnFamily>, mode: TreeMode) -> Self {
-        let wrapper = RocksDBWrapper::from(db);
+    fn new_with_mode(db: RocksDBWrapper, mode: TreeMode) -> Self {
         Self {
-            tree: MerkleTree::new(Patched::new(wrapper)),
+            tree: MerkleTree::new(Patched::new(db)),
             thread_pool: None,
             mode,
         }
