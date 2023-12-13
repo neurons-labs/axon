@@ -40,7 +40,10 @@ impl BlockOutputWithProofs {
                 TreeLogEntry::Inserted | TreeLogEntry::ReadMissingKey => {
                     TreeEntry::empty(instruction.key())
                 }
-                TreeLogEntry::Updated { leaf_index, previous_value: value }
+                TreeLogEntry::Updated {
+                    leaf_index,
+                    previous_value: value,
+                }
                 | TreeLogEntry::Read { leaf_index, value } => {
                     TreeEntry::new(instruction.key(), leaf_index, value)
                 }

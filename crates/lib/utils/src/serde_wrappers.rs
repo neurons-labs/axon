@@ -73,7 +73,11 @@ impl<P: Prefix> BytesToHexSerde<P> {
         S: Serializer,
     {
         // First, serialize to hexadecimal string.
-        let hex_value = format!("{}{}", P::prefix(), axon_primitives::web3::hex::encode(value));
+        let hex_value = format!(
+            "{}{}",
+            P::prefix(),
+            axon_primitives::web3::hex::encode(value)
+        );
 
         // Then, serialize it using `Serialize` trait implementation for `String`.
         String::serialize(&hex_value, serializer)
@@ -88,7 +92,10 @@ impl<P: Prefix> BytesToHexSerde<P> {
         if let Some(deserialized_string) = deserialized_string.strip_prefix(P::prefix()) {
             axon_primitives::web3::hex::decode(deserialized_string).map_err(de::Error::custom)
         } else {
-            Err(de::Error::custom(format!("string value missing prefix: {:?}", P::prefix())))
+            Err(de::Error::custom(format!(
+                "string value missing prefix: {:?}",
+                P::prefix()
+            )))
         }
     }
 }

@@ -105,7 +105,11 @@ impl AxonTree {
 
     fn new_with_mode(db: RocksDB<MerkleTreeColumnFamily>, mode: TreeMode) -> Self {
         let wrapper = RocksDBWrapper::from(db);
-        Self { tree: MerkleTree::new(Patched::new(wrapper)), thread_pool: None, mode }
+        Self {
+            tree: MerkleTree::new(Patched::new(wrapper)),
+            thread_pool: None,
+            mode,
+        }
     }
 
     /// Returns a readonly handle to the tree. The handle **does not** see uncommitted changes to
@@ -296,7 +300,11 @@ impl AxonTree {
     fn extract_writes(
         logs: impl Iterator<Item = TreeLogEntry>,
         entries: impl Iterator<Item = TreeEntry<StorageKey>>,
-    ) -> (Vec<InitialStorageWrite>, Vec<RepeatedStorageWrite>, Vec<StateDiffRecord>) {
+    ) -> (
+        Vec<InitialStorageWrite>,
+        Vec<RepeatedStorageWrite>,
+        Vec<StateDiffRecord>,
+    ) {
         let mut initial_writes = vec![];
         let mut repeated_writes = vec![];
         let mut state_diffs = vec![];
@@ -318,7 +326,10 @@ impl AxonTree {
                         final_value: b256_to_u256(input_entry.value),
                     });
                 }
-                TreeLogEntry::Updated { previous_value: prev_value_hash, leaf_index } => {
+                TreeLogEntry::Updated {
+                    previous_value: prev_value_hash,
+                    leaf_index,
+                } => {
                     if prev_value_hash != input_entry.value {
                         repeated_writes.push(RepeatedStorageWrite {
                             index: input_entry.leaf_index,

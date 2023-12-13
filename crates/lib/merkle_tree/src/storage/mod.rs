@@ -89,8 +89,10 @@ impl TreeUpdater {
         sorted_keys: &SortedKeys,
         db: &DB,
     ) -> Vec<Nibbles> {
-        let LoadAncestorsResult { longest_prefixes, db_reads } =
-            self.patch_set.load_ancestors(sorted_keys, db);
+        let LoadAncestorsResult {
+            longest_prefixes,
+            db_reads,
+        } = self.patch_set.load_ancestors(sorted_keys, db);
 
         self.metrics.db_reads += db_reads;
         longest_prefixes
@@ -253,7 +255,11 @@ impl<'a, DB: Database + ?Sized> Storage<'a, DB> {
         }
         manifest.version_count = version + 1;
 
-        let base_version = if create_new_version { version.checked_sub(1) } else { Some(version) };
+        let base_version = if create_new_version {
+            version.checked_sub(1)
+        } else {
+            Some(version)
+        };
         let root = if let Some(base_version) = base_version {
             db.root(base_version).unwrap_or(Root::Empty)
         } else {
@@ -265,7 +271,11 @@ impl<'a, DB: Database + ?Sized> Storage<'a, DB> {
             hasher,
             manifest,
             leaf_count: root.leaf_count(),
-            operation: if create_new_version { Operation::Insert } else { Operation::Update },
+            operation: if create_new_version {
+                Operation::Insert
+            } else {
+                Operation::Update
+            },
             updater: TreeUpdater::new(version, root),
         }
     }
@@ -293,7 +303,11 @@ impl<'a, DB: Database + ?Sized> Storage<'a, DB> {
 
         let leaf_count = self.leaf_count;
         let (root_hash, patch) = self.finalize();
-        let output = BlockOutput { root_hash, leaf_count, logs };
+        let output = BlockOutput {
+            root_hash,
+            leaf_count,
+            logs,
+        };
         (output, patch)
     }
 
@@ -426,7 +440,11 @@ struct NewLeafData {
 
 impl NewLeafData {
     fn new(nibbles: Nibbles, leaf: LeafNode) -> Self {
-        Self { nibbles, leaf, adjacent_leaf: None }
+        Self {
+            nibbles,
+            leaf,
+            adjacent_leaf: None,
+        }
     }
 
     fn with_adjacent_leaf(mut self, nibbles: Nibbles, leaf: LeafNode) -> Self {

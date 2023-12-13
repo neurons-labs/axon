@@ -88,7 +88,10 @@ pub struct Manifest {
 impl Manifest {
     #[cfg(test)]
     pub(crate) fn new(version_count: u64, hasher: &dyn HashTree) -> Self {
-        Self { version_count, tags: Some(TreeTags::new(hasher)) }
+        Self {
+            version_count,
+            tags: Some(TreeTags::new(hasher)),
+        }
     }
 }
 
@@ -102,7 +105,10 @@ pub(crate) struct Nibbles {
 }
 
 impl Nibbles {
-    pub const EMPTY: Self = Self { nibble_count: 0, bytes: [0_u8; KEY_SIZE] };
+    pub const EMPTY: Self = Self {
+        nibble_count: 0,
+        bytes: [0_u8; KEY_SIZE],
+    };
 
     pub fn nibble(key: &Key, index: usize) -> u8 {
         const NIBBLES_IN_U64: usize = 16; // 8 bytes * 2 nibbles / byte
@@ -131,12 +137,18 @@ impl Nibbles {
             *byte = 0;
         }
 
-        Self { nibble_count, bytes }
+        Self {
+            nibble_count,
+            bytes,
+        }
     }
 
     pub fn from_parts(bytes: NibblesBytes, nibble_count: usize) -> Self {
         debug_assert!(nibble_count <= 2 * KEY_SIZE);
-        Self { nibble_count, bytes }
+        Self {
+            nibble_count,
+            bytes,
+        }
     }
 
     pub fn single(nibble: u8) -> Self {
@@ -147,7 +159,10 @@ impl Nibbles {
     }
 
     pub fn with_version(self, version: u64) -> NodeKey {
-        NodeKey { version, nibbles: self }
+        NodeKey {
+            version,
+            nibbles: self,
+        }
     }
 
     pub fn nibble_count(&self) -> usize {
@@ -177,7 +192,10 @@ impl Nibbles {
             last_byte & 15
         };
 
-        let parent = Self { nibble_count: self.nibble_count - 1, bytes: truncated_bytes };
+        let parent = Self {
+            nibble_count: self.nibble_count - 1,
+            bytes: truncated_bytes,
+        };
         Some((parent, last_nibble))
     }
 
@@ -258,7 +276,10 @@ impl fmt::Debug for NodeKey {
 
 impl NodeKey {
     pub(crate) const fn empty(version: u64) -> Self {
-        Self { version, nibbles: Nibbles::EMPTY }
+        Self {
+            version,
+            nibbles: Nibbles::EMPTY,
+        }
     }
 
     // TODO (VJJ): Add a fallible version for verifying consistency
@@ -311,7 +332,11 @@ pub struct LeafNode {
 
 impl LeafNode {
     pub(crate) fn new(entry: TreeEntry) -> Self {
-        Self { full_key: entry.key, value_hash: entry.value, leaf_index: entry.leaf_index }
+        Self {
+            full_key: entry.key,
+            value_hash: entry.value,
+            leaf_index: entry.leaf_index,
+        }
     }
 
     pub(crate) fn update_from(&mut self, entry: TreeEntry) {
@@ -332,11 +357,19 @@ pub(crate) struct ChildRef {
 impl ChildRef {
     /// Creates a reference to a child with `value_hash` left blank (it will be computed later).
     pub fn leaf(version: u64) -> Self {
-        Self { hash: ValueHash::default(), version, is_leaf: true }
+        Self {
+            hash: ValueHash::default(),
+            version,
+            is_leaf: true,
+        }
     }
 
     pub fn internal(version: u64) -> Self {
-        Self { hash: ValueHash::default(), version, is_leaf: false }
+        Self {
+            hash: ValueHash::default(),
+            version,
+            is_leaf: false,
+        }
     }
 }
 
@@ -381,7 +414,10 @@ impl InternalNode {
     pub(crate) const CHILD_COUNT: u8 = 16;
 
     pub(crate) fn with_capacity(capacity: usize) -> Self {
-        Self { cache: None, children: SmallMap::with_capacity(capacity) }
+        Self {
+            cache: None,
+            children: SmallMap::with_capacity(capacity),
+        }
     }
 
     pub(crate) fn child_count(&self) -> usize {
@@ -476,7 +512,10 @@ pub enum Root {
 
 impl Root {
     pub(crate) fn new(leaf_count: u64, node: Node) -> Self {
-        Self::Filled { leaf_count: NonZeroU64::new(leaf_count).unwrap(), node }
+        Self::Filled {
+            leaf_count: NonZeroU64::new(leaf_count).unwrap(),
+            node,
+        }
     }
 
     pub(crate) fn leaf_count(&self) -> u64 {
@@ -498,7 +537,10 @@ pub(crate) struct StaleNodeKey {
 
 impl StaleNodeKey {
     pub fn new(key: NodeKey, replaced_in_version: u64) -> Self {
-        Self { key, replaced_in_version }
+        Self {
+            key,
+            replaced_in_version,
+        }
     }
 
     pub fn to_db_key(&self) -> Vec<u8> {
@@ -582,7 +624,10 @@ mod tests {
         assert_eq!(nibbles.common_prefix(&diverging_nibbles), prefix);
 
         let diverging_nibbles = Nibbles::new(&TEST_KEY, 5).push(0x1).unwrap();
-        assert_eq!(nibbles.common_prefix(&diverging_nibbles), Nibbles::new(&TEST_KEY, 5));
+        assert_eq!(
+            nibbles.common_prefix(&diverging_nibbles),
+            Nibbles::new(&TEST_KEY, 5)
+        );
 
         let diverging_nibbles = Nibbles::from_parts([0xff; KEY_SIZE], 64);
         assert_eq!(nibbles.common_prefix(&diverging_nibbles), Nibbles::EMPTY);
@@ -594,7 +639,10 @@ mod tests {
         let node_key = nibbles.with_version(3);
 
         let serialized_key = node_key.to_db_key();
-        assert_eq!(serialized_key, [0, 0, 0, 0, 0, 0, 0, 3, 6, 0xde, 0xad, 0xbe]);
+        assert_eq!(
+            serialized_key,
+            [0, 0, 0, 0, 0, 0, 0, 3, 6, 0xde, 0xad, 0xbe]
+        );
         // ^ big-endian u64 version, then u8 nibble count, then nibbles
         let key_copy = NodeKey::from_db_key(&serialized_key);
         assert_eq!(key_copy, node_key);
@@ -603,7 +651,10 @@ mod tests {
         let node_key = nibbles.with_version(3);
 
         let serialized_key = node_key.to_db_key();
-        assert_eq!(serialized_key, [0, 0, 0, 0, 0, 0, 0, 3, 7, 0xde, 0xad, 0xbe, 0xe0]);
+        assert_eq!(
+            serialized_key,
+            [0, 0, 0, 0, 0, 0, 0, 3, 7, 0xde, 0xad, 0xbe, 0xe0]
+        );
         // ^ the last byte must be truncated
         let key_copy = NodeKey::from_db_key(&serialized_key);
         assert_eq!(key_copy, node_key);

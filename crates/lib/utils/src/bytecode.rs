@@ -105,7 +105,10 @@ impl CompressedBytecodeInfo {
     pub fn from_original(bytecode: Vec<u8>) -> Result<Self, FailedToCompressBytecodeError> {
         let compressed = compress_bytecode(&bytecode)?;
 
-        let result = Self { original: bytecode, compressed };
+        let result = Self {
+            original: bytecode,
+            compressed,
+        };
 
         Ok(result)
     }
@@ -128,7 +131,10 @@ pub fn validate_bytecode(code: &[u8]) -> Result<(), InvalidBytecodeError> {
     let bytecode_len = code.len();
 
     if bytecode_len > MAX_BYTECODE_LENGTH_BYTES {
-        return Err(InvalidBytecodeError::BytecodeTooLong(bytecode_len, MAX_BYTECODE_LENGTH_BYTES));
+        return Err(InvalidBytecodeError::BytecodeTooLong(
+            bytecode_len,
+            MAX_BYTECODE_LENGTH_BYTES,
+        ));
     }
 
     if bytecode_len % 32 != 0 {

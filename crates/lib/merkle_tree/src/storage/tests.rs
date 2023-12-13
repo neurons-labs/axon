@@ -36,7 +36,14 @@ pub(super) fn create_patch(
     nodes: HashMap<NodeKey, Node>,
 ) -> PatchSet {
     let manifest = Manifest::new(latest_version + 1, &());
-    PatchSet::new(manifest, latest_version, root, nodes, vec![], Operation::Insert)
+    PatchSet::new(
+        manifest,
+        latest_version,
+        root,
+        nodes,
+        vec![],
+        Operation::Insert,
+    )
 }
 
 #[test]
@@ -50,7 +57,10 @@ fn inserting_entries_in_empty_database() {
     let parent_nibbles = updater.load_ancestors(&sorted_keys, &db);
     assert_eq!(parent_nibbles, [Nibbles::EMPTY; 3]);
 
-    updater.insert(TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])),
+        &Nibbles::EMPTY,
+    );
 
     let root_node = updater.patch_set.get(&Nibbles::EMPTY).unwrap();
     let Node::Leaf(root_leaf) = root_node else {
@@ -59,10 +69,16 @@ fn inserting_entries_in_empty_database() {
     assert_eq!(root_leaf.full_key, FIRST_KEY);
     assert_eq!(root_leaf.value_hash, B256::new([1; 32]));
 
-    updater.insert(TreeEntry::new(SECOND_KEY, 2, B256::new([2; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(SECOND_KEY, 2, B256::new([2; 32])),
+        &Nibbles::EMPTY,
+    );
     assert_storage_with_2_keys(&updater);
 
-    updater.insert(TreeEntry::new(THIRD_KEY, 3, B256::new([3; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(THIRD_KEY, 3, B256::new([3; 32])),
+        &Nibbles::EMPTY,
+    );
     assert_storage_with_3_keys(&updater);
 }
 
@@ -143,9 +159,15 @@ fn assert_storage_with_3_keys(updater: &TreeUpdater) {
 #[test]
 fn changing_child_ref_type() {
     let mut updater = TreeUpdater::new(0, Root::Empty);
-    updater.insert(TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])),
+        &Nibbles::EMPTY,
+    );
     let e_key = U256::from_limbs([0, 0, 0, 0x_e000_0000_0000_0000]);
-    updater.insert(TreeEntry::new(e_key, 2, B256::new([2; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(e_key, 2, B256::new([2; 32])),
+        &Nibbles::EMPTY,
+    );
 
     let node = updater.patch_set.get(&Nibbles::EMPTY).unwrap();
     let Node::Internal(node) = node else {
@@ -154,7 +176,10 @@ fn changing_child_ref_type() {
     assert!(node.child_ref(0xd).unwrap().is_leaf);
     assert!(node.child_ref(0xe).unwrap().is_leaf);
 
-    updater.insert(TreeEntry::new(SECOND_KEY, 3, B256::new([3; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(SECOND_KEY, 3, B256::new([3; 32])),
+        &Nibbles::EMPTY,
+    );
 
     let node = updater.patch_set.get(&Nibbles::EMPTY).unwrap();
     let Node::Internal(node) = node else {
@@ -188,13 +213,17 @@ fn inserting_node_in_non_empty_database() {
         ]
     );
 
-    let (op, _) =
-        updater.insert(TreeEntry::new(THIRD_KEY, 3, B256::new([3; 32])), &parent_nibbles[0]);
+    let (op, _) = updater.insert(
+        TreeEntry::new(THIRD_KEY, 3, B256::new([3; 32])),
+        &parent_nibbles[0],
+    );
     assert_eq!(op, TreeLogEntry::Inserted);
     let (op, _) = updater.insert(TreeEntry::new(E_KEY, 4, B256::ZERO), &parent_nibbles[1]);
     assert_eq!(op, TreeLogEntry::Inserted);
-    let (op, _) =
-        updater.insert(TreeEntry::new(SECOND_KEY, 2, B256::new([2; 32])), &parent_nibbles[2]);
+    let (op, _) = updater.insert(
+        TreeEntry::new(SECOND_KEY, 2, B256::new([2; 32])),
+        &parent_nibbles[2],
+    );
     assert_matches!(op, TreeLogEntry::Updated { leaf_index: 2, .. });
     assert_eq!(updater.metrics.new_internal_nodes, 0);
     assert_eq!(updater.metrics.new_leaves, 2);
@@ -229,12 +258,20 @@ fn inserting_node_in_non_empty_database_with_moved_key() {
         parent_nibbles,
         [Nibbles::new(&SECOND_KEY, 5)] // `deadb`, a leaf node
     );
-    assert_matches!(updater.patch_set.get(&parent_nibbles[0]), Some(Node::Leaf(_)));
+    assert_matches!(
+        updater.patch_set.get(&parent_nibbles[0]),
+        Some(Node::Leaf(_))
+    );
 
-    let (op, _) =
-        updater.insert(TreeEntry::new(SECOND_KEY, 3, B256::new([2; 32])), &parent_nibbles[0]);
+    let (op, _) = updater.insert(
+        TreeEntry::new(SECOND_KEY, 3, B256::new([2; 32])),
+        &parent_nibbles[0],
+    );
     assert_eq!(op, TreeLogEntry::Inserted);
-    assert_matches!(updater.patch_set.get(&parent_nibbles[0]), Some(Node::Internal(_)));
+    assert_matches!(
+        updater.patch_set.get(&parent_nibbles[0]),
+        Some(Node::Internal(_))
+    );
     assert_eq!(updater.metrics.new_leaves, 1);
     assert_eq!(updater.metrics.moved_leaves, 1);
 }
@@ -243,7 +280,10 @@ fn inserting_node_in_non_empty_database_with_moved_key() {
 fn proving_keys_existence_and_absence() {
     let mut updater = TreeUpdater::new(0, Root::Empty);
     updater.patch_set.ensure_internal_root_node(); // Necessary for proofs to work.
-    updater.insert(TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(FIRST_KEY, 1, B256::new([1; 32])),
+        &Nibbles::EMPTY,
+    );
 
     let mut hasher = HasherWithStats::new(&());
     let (op, merkle_path) = updater.prove(&mut hasher, FIRST_KEY, &Nibbles::EMPTY);
@@ -256,7 +296,10 @@ fn proving_keys_existence_and_absence() {
     let merkle_path = finalize_merkle_path(merkle_path, &hasher);
     assert_eq!(merkle_path.len(), 40);
 
-    updater.insert(TreeEntry::new(THIRD_KEY, 2, B256::new([3; 32])), &Nibbles::EMPTY);
+    updater.insert(
+        TreeEntry::new(THIRD_KEY, 2, B256::new([3; 32])),
+        &Nibbles::EMPTY,
+    );
     let (op, merkle_path) = updater.prove(&mut hasher, FIRST_KEY, &Nibbles::EMPTY);
     assert_matches!(op, TreeLogEntry::Read { .. });
     let merkle_path = finalize_merkle_path(merkle_path, &hasher);
@@ -297,8 +340,10 @@ fn reading_keys_does_not_change_child_version() {
     ];
 
     let (_, patch) = storage.extend_with_proofs(instructions);
-    let Some(Root::Filled { leaf_count, node: Node::Internal(node) }) =
-        &patch.patches_by_version[&1].root
+    let Some(Root::Filled {
+        leaf_count,
+        node: Node::Internal(node),
+    }) = &patch.patches_by_version[&1].root
     else {
         panic!("unexpected root");
     };
@@ -448,8 +493,11 @@ fn tree_handles_keys_at_terminal_level() {
     db.apply_patch(patch);
 
     // Overwrite a key and check that we don't panic.
-    let new_kvs =
-        vec![TreeEntry::new(Key::from(0), 1, ValueHash::left_padding_from(&1_u64.to_be_bytes()))];
+    let new_kvs = vec![TreeEntry::new(
+        Key::from(0),
+        1,
+        ValueHash::left_padding_from(&1_u64.to_be_bytes()),
+    )];
     let (_, patch) = Storage::new(&db, &(), 1, true).extend(new_kvs);
 
     assert_eq!(
@@ -484,11 +532,18 @@ fn recovery_flattens_node_versions() {
 
     let root = patch.root.unwrap();
     assert_eq!(root.leaf_count(), 10);
-    let Root::Filled { node: Node::Internal(root_node), .. } = &root else {
+    let Root::Filled {
+        node: Node::Internal(root_node),
+        ..
+    } = &root
+    else {
         panic!("Unexpected root: {root:?}");
     };
     for nibble in 0..10 {
-        assert_eq!(root_node.child_ref(nibble).unwrap().version, recovery_version);
+        assert_eq!(
+            root_node.child_ref(nibble).unwrap().version,
+            recovery_version
+        );
         let expected_key = Nibbles::single(nibble).with_version(recovery_version);
         assert_matches!(patch.nodes[&expected_key], Node::Leaf { .. });
     }
@@ -515,7 +570,11 @@ fn recovery_with_node_hierarchy(chunk_size: usize) {
 
     let root = patch.root.unwrap();
     assert_eq!(root.leaf_count(), 256);
-    let Root::Filled { node: Node::Internal(root_node), .. } = &root else {
+    let Root::Filled {
+        node: Node::Internal(root_node),
+        ..
+    } = &root
+    else {
         panic!("Unexpected root: {root:?}");
     };
 
@@ -561,12 +620,19 @@ fn recovery_with_deep_node_hierarchy(chunk_size: usize) {
     // Manually remove all stale keys from the patch
     assert_eq!(db.stale_keys_by_version.len(), 1);
     for stale_key in &db.stale_keys_by_version[&recovery_version] {
-        assert!(patch.nodes.remove(stale_key).is_some(), "Stale key {stale_key} is missing");
+        assert!(
+            patch.nodes.remove(stale_key).is_some(),
+            "Stale key {stale_key} is missing"
+        );
     }
 
     let root = patch.root.unwrap();
     assert_eq!(root.leaf_count(), 256);
-    let Root::Filled { node: Node::Internal(root_node), .. } = &root else {
+    let Root::Filled {
+        node: Node::Internal(root_node),
+        ..
+    } = &root
+    else {
         panic!("Unexpected root: {root:?}");
     };
     assert_eq!(root_node.child_count(), 1);
@@ -575,7 +641,10 @@ fn recovery_with_deep_node_hierarchy(chunk_size: usize) {
     assert_eq!(child_ref.version, recovery_version);
 
     for (node_key, node) in patch.nodes {
-        assert_eq!(node_key.version, recovery_version, "Unexpected version for {node_key}");
+        assert_eq!(
+            node_key.version, recovery_version,
+            "Unexpected version for {node_key}"
+        );
 
         let nibble_count = node_key.nibbles.nibble_count();
         if nibble_count < 64 {
@@ -584,7 +653,11 @@ fn recovery_with_deep_node_hierarchy(chunk_size: usize) {
             };
             assert_eq!(node.child_count(), if nibble_count < 62 { 1 } else { 16 });
         } else {
-            assert_matches!(node, Node::Leaf(_), "Unexpected node at {node_key}: {node:?}");
+            assert_matches!(
+                node,
+                Node::Leaf(_),
+                "Unexpected node at {node_key}: {node:?}"
+            );
         }
     }
 }
@@ -711,7 +784,11 @@ fn test_recovery_pruning_equivalence(
     }
 
     // Nodes must be identical for the pruned and recovered trees up to the version.
-    if let Root::Filled { node: Node::Internal(node), .. } = &mut root {
+    if let Root::Filled {
+        node: Node::Internal(node),
+        ..
+    } = &mut root
+    {
         for child_ref in node.child_refs_mut() {
             child_ref.version = recovered_version;
         }

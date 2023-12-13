@@ -196,9 +196,9 @@ impl<DB: Database> Patched<DB> {
     }
 
     pub(crate) fn patched_versions(&self) -> Vec<u64> {
-        self.patch
-            .as_ref()
-            .map_or_else(Vec::new, |patch| patch.patches_by_version.keys().copied().collect())
+        self.patch.as_ref().map_or_else(Vec::new, |patch| {
+            patch.patches_by_version.keys().copied().collect()
+        })
     }
 
     /// Returns the value from the patch and a flag whether this value is final (i.e., a DB lookup
@@ -250,7 +250,10 @@ impl<DB: Database> Patched<DB> {
     /// Panics if the database contains uncommitted changes. Call [`Self::flush()`]
     /// or [`Self::reset()`] beforehand to avoid this panic.
     pub fn into_inner(self) -> DB {
-        assert!(self.patch.is_none(), "The `Patched` database contains uncommitted changes");
+        assert!(
+            self.patch.is_none(),
+            "The `Patched` database contains uncommitted changes"
+        );
         self.inner
     }
 }
@@ -315,7 +318,11 @@ impl<DB: Database> Database for Patched<DB> {
         let mut patch_values = patch_values.into_iter();
         let mut db_values = self.inner.tree_nodes(&db_keys).into_iter();
         let values = is_in_patch.into_iter().map(|is_in_patch| {
-            if is_in_patch { patch_values.next().unwrap() } else { db_values.next().unwrap() }
+            if is_in_patch {
+                patch_values.next().unwrap()
+            } else {
+                db_values.next().unwrap()
+            }
         });
         values.collect()
     }
@@ -344,7 +351,10 @@ impl PrunePatchSet {
         pruned_node_keys: Vec<NodeKey>,
         deleted_stale_key_versions: ops::Range<u64>,
     ) -> Self {
-        Self { pruned_node_keys, deleted_stale_key_versions }
+        Self {
+            pruned_node_keys,
+            deleted_stale_key_versions,
+        }
     }
 }
 
@@ -425,8 +435,14 @@ mod tests {
         let manifest = Manifest::new(10, &());
         let old_root = Root::new(2, Node::Internal(InternalNode::default()));
         let nodes = generate_nodes(9, &[1, 2]);
-        let mut patch =
-            PatchSet::new(manifest, 9, old_root.clone(), nodes.clone(), vec![], Operation::Update);
+        let mut patch = PatchSet::new(
+            manifest,
+            9,
+            old_root.clone(),
+            nodes.clone(),
+            vec![],
+            Operation::Update,
+        );
 
         for ver in (0..9).chain(10..20) {
             assert!(patch.root(ver).is_none());
@@ -467,8 +483,14 @@ mod tests {
         let manifest = Manifest::new(10, &());
         let old_root = Root::new(2, Node::Internal(InternalNode::default()));
         let nodes = generate_nodes(9, &[1, 2]);
-        let mut patch =
-            PatchSet::new(manifest.clone(), 9, old_root, nodes.clone(), vec![], Operation::Update);
+        let mut patch = PatchSet::new(
+            manifest.clone(),
+            9,
+            old_root,
+            nodes.clone(),
+            vec![],
+            Operation::Update,
+        );
 
         let new_nodes = generate_nodes(9, &[3, 4]);
         let new_root = Root::new(4, Node::Internal(InternalNode::default()));
@@ -600,7 +622,10 @@ mod tests {
         let retrieved_nodes = patched.tree_nodes(&requested_keys);
         assert_eq!(retrieved_nodes.len(), requested_keys.len());
         for ((key, _), node) in requested_keys.iter().zip(retrieved_nodes) {
-            assert_eq!(node.unwrap(), *nodes.get(key).unwrap_or_else(|| &new_nodes[key]));
+            assert_eq!(
+                node.unwrap(),
+                *nodes.get(key).unwrap_or_else(|| &new_nodes[key])
+            );
         }
     }
 }

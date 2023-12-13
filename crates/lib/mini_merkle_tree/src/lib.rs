@@ -69,7 +69,10 @@ where
         let hashes: Box<[B256]> = leaves.map(|bytes| hasher.hash_bytes(&bytes)).collect();
         let mut binary_tree_size = hashes.len().next_power_of_two();
         if let Some(min_tree_size) = min_tree_size {
-            assert!(min_tree_size.is_power_of_two(), "tree size must be a power of 2");
+            assert!(
+                min_tree_size.is_power_of_two(),
+                "tree size must be a power of 2"
+            );
             binary_tree_size = min_tree_size.max(binary_tree_size);
         }
         assert!(
@@ -78,7 +81,11 @@ where
             1 << MAX_TREE_DEPTH
         );
 
-        Self { hasher, hashes, binary_tree_size }
+        Self {
+            hasher,
+            hashes,
+            binary_tree_size,
+        }
     }
 
     /// Returns the root hash of this tree.
@@ -165,7 +172,9 @@ impl HashEmptySubtree<88> for KeccakHasher {
 
 fn compute_empty_tree_hashes<const LEAF_SIZE: usize>() -> Vec<B256> {
     let empty_leaf_hash = KeccakHasher.hash_bytes(&[0_u8; LEAF_SIZE]);
-    iter::successors(Some(empty_leaf_hash), |hash| Some(KeccakHasher.compress(hash, hash)))
-        .take(MAX_TREE_DEPTH + 1)
-        .collect()
+    iter::successors(Some(empty_leaf_hash), |hash| {
+        Some(KeccakHasher.compress(hash, hash))
+    })
+    .take(MAX_TREE_DEPTH + 1)
+    .collect()
 }

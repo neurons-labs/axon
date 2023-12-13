@@ -137,7 +137,10 @@ impl RocksDBWrapper {
 
 impl From<RocksDB<MerkleTreeColumnFamily>> for RocksDBWrapper {
     fn from(db: RocksDB<MerkleTreeColumnFamily>) -> Self {
-        Self { db, multi_get_chunk_size: usize::MAX }
+        Self {
+            db,
+            multi_get_chunk_size: usize::MAX,
+        }
     }
 }
 

@@ -205,7 +205,10 @@ impl RocksDBInner {
 
 impl Drop for RocksDBInner {
     fn drop(&mut self) {
-        tracing::debug!("Canceling background compactions / flushes for DB `{}`", self.db_name);
+        tracing::debug!(
+            "Canceling background compactions / flushes for DB `{}`",
+            self.db_name
+        );
         self.db.cancel_all_background_work(true);
     }
 }
@@ -235,7 +238,13 @@ impl StalledWritesRetries {
 
 impl StalledWritesRetries {
     fn intervals(&self) -> impl Iterator<Item = Duration> {
-        let &Self { timeout, start_interval, max_interval, scale_factor, .. } = self;
+        let &Self {
+            timeout,
+            start_interval,
+            max_interval,
+            scale_factor,
+            ..
+        } = self;
         let started_at = Instant::now();
 
         iter::successors(Some(start_interval), move |&prev_interval| {
@@ -431,7 +440,10 @@ impl<CF: NamedColumnFamily> RocksDB<CF> {
     }
 
     pub fn new_write_batch(&self) -> WriteBatch<'_, CF> {
-        WriteBatch { inner: rocksdb::WriteBatch::default(), db: self }
+        WriteBatch {
+            inner: rocksdb::WriteBatch::default(),
+            db: self,
+        }
     }
 
     pub fn write<'a>(&'a self, batch: WriteBatch<'a, CF>) -> Result<(), rocksdb::Error> {
@@ -698,8 +710,10 @@ mod tests {
         let mut batch = db.new_write_batch();
         batch.put_cf(NewColumnFamilies::Default, b"test", b"value");
         batch.put_cf(NewColumnFamilies::Default, b"test2", b"value2");
-        let batch =
-            WriteBatch { db: &db, inner: rocksdb::WriteBatch::from_data(batch.inner.data()) };
+        let batch = WriteBatch {
+            db: &db,
+            inner: rocksdb::WriteBatch::from_data(batch.inner.data()),
+        };
         db.write(batch).unwrap();
 
         let value = db

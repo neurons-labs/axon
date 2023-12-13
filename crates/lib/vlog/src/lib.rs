@@ -121,7 +121,9 @@ impl ObservabilityBuilder {
             None
         };
 
-        ObservabilityGuard { _sentry_guard: sentry_guard }
+        ObservabilityGuard {
+            _sentry_guard: sentry_guard,
+        }
     }
 }
 

@@ -40,12 +40,16 @@ impl<DB: Database, H: HashTree> MerkleTree<DB, H> {
     ) -> Result<Vec<T>, NoVersionError> {
         let root = self.db.root(version).ok_or_else(|| {
             let manifest = self.db.manifest().unwrap_or_default();
-            NoVersionError { missing_version: version, version_count: manifest.version_count }
+            NoVersionError {
+                missing_version: version,
+                version_count: manifest.version_count,
+            }
         })?;
         let sorted_keys = SortedKeys::new(leaf_keys.iter().copied());
         let mut patch_set = WorkingPatchSet::new(version, root);
-        let LoadAncestorsResult { longest_prefixes, .. } =
-            patch_set.load_ancestors(&sorted_keys, &self.db);
+        let LoadAncestorsResult {
+            longest_prefixes, ..
+        } = patch_set.load_ancestors(&sorted_keys, &self.db);
 
         Ok(leaf_keys
             .iter()

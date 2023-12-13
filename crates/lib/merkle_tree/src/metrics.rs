@@ -151,7 +151,11 @@ impl TreeUpdaterStats {
     #[allow(clippy::cast_precision_loss)] // Acceptable for metrics
     fn avg_leaf_level(&self) -> f64 {
         let touched_leaves = self.new_leaves + self.moved_leaves;
-        if touched_leaves > 0 { self.leaf_level_sum as f64 / touched_leaves as f64 } else { 0.0 }
+        if touched_leaves > 0 {
+            self.leaf_level_sum as f64 / touched_leaves as f64
+        } else {
+            0.0
+        }
     }
 
     pub(crate) fn report(self) {
@@ -207,7 +211,16 @@ pub(crate) struct BlockTimings {
 #[vetric::register]
 pub(crate) static BLOCK_TIMINGS: Global<BlockTimings> = Global::new();
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EncodeLabelValue, EncodeLabelSet)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EncodeLabelValue,
+    EncodeLabelSet
+)]
 #[metrics(label = "nibbles")]
 struct NibbleCount(usize);
 
@@ -302,7 +315,16 @@ impl ApplyPatchStats {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EncodeLabelValue, EncodeLabelSet)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EncodeLabelValue,
+    EncodeLabelSet
+)]
 #[metrics(label = "bound", rename_all = "snake_case")]
 enum Bound {
     Start,

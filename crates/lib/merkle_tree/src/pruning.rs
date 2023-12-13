@@ -149,7 +149,11 @@ impl<DB: PruneDatabase> MerkleTreePruner<DB> {
             let timeout = if let Some(stats) = self.run_once() {
                 let has_more_work = stats.has_more_work();
                 stats.report();
-                if has_more_work { Duration::ZERO } else { self.poll_interval }
+                if has_more_work {
+                    Duration::ZERO
+                } else {
+                    self.poll_interval
+                }
             } else {
                 tracing::debug!("No pruning required per specified policies; waiting");
                 self.poll_interval
@@ -244,7 +248,11 @@ mod tests {
     fn generate_key_value_pairs(indexes: impl Iterator<Item = u64>) -> Vec<TreeEntry> {
         indexes
             .map(|i| {
-                TreeEntry::new(Key::from(i), i + 1, ValueHash::left_padding_from(&i.to_be_bytes()))
+                TreeEntry::new(
+                    Key::from(i),
+                    i + 1,
+                    ValueHash::left_padding_from(&i.to_be_bytes()),
+                )
             })
             .collect()
     }
@@ -263,7 +271,10 @@ mod tests {
         assert!(stats.pruned_key_count > 0);
         let first_retained_version = latest_version.saturating_sub(past_versions_to_keep);
         assert_eq!(stats.target_retained_version, first_retained_version);
-        assert_eq!(stats.deleted_stale_key_versions, 1..(first_retained_version + 1));
+        assert_eq!(
+            stats.deleted_stale_key_versions,
+            1..(first_retained_version + 1)
+        );
         assert_no_stale_keys(&db, first_retained_version);
 
         let mut tree = MerkleTree::new(&mut db);

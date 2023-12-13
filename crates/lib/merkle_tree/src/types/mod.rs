@@ -58,14 +58,22 @@ pub struct TreeEntry<K = Key> {
 
 impl From<LeafNode> for TreeEntry {
     fn from(leaf: LeafNode) -> Self {
-        Self { key: leaf.full_key, value: leaf.value_hash, leaf_index: leaf.leaf_index }
+        Self {
+            key: leaf.full_key,
+            value: leaf.value_hash,
+            leaf_index: leaf.leaf_index,
+        }
     }
 }
 
 impl<K> TreeEntry<K> {
     /// Creates a new entry with the specified fields.
     pub fn new(key: K, leaf_index: u64, value: ValueHash) -> Self {
-        Self { key, value, leaf_index }
+        Self {
+            key,
+            value,
+            leaf_index,
+        }
     }
 
     pub(crate) fn map_key<U>(&self, map_fn: impl FnOnce(&K) -> U) -> TreeEntry<U> {
@@ -75,7 +83,11 @@ impl<K> TreeEntry<K> {
 
 impl TreeEntry {
     pub(crate) fn empty(key: Key) -> Self {
-        Self { key, value: ValueHash::ZERO, leaf_index: 0 }
+        Self {
+            key,
+            value: ValueHash::ZERO,
+            leaf_index: 0,
+        }
     }
 
     /// Returns `true` if and only if this entry encodes lack of a value.
@@ -84,7 +96,10 @@ impl TreeEntry {
     }
 
     pub(crate) fn with_merkle_path(self, merkle_path: Vec<ValueHash>) -> TreeEntryWithProof {
-        TreeEntryWithProof { base: self, merkle_path }
+        TreeEntryWithProof {
+            base: self,
+            merkle_path,
+        }
     }
 
     /// Replaces the value in this entry and returns the modified entry.
@@ -146,7 +161,10 @@ pub enum TreeLogEntry {
 
 impl TreeLogEntry {
     pub(crate) fn update(leaf_index: u64, previous_value: ValueHash) -> Self {
-        Self::Updated { leaf_index, previous_value }
+        Self::Updated {
+            leaf_index,
+            previous_value,
+        }
     }
 
     pub(crate) fn read(leaf_index: u64, value: ValueHash) -> Self {

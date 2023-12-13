@@ -61,7 +61,10 @@ pub fn bigdecimal_to_u256(value: BigDecimal) -> U256 {
 }
 
 fn ensure_chunkable(bytes: &[u8]) {
-    assert!(bytes.len() % 32 == 0, "Bytes must be divisible by 32 to split into chunks");
+    assert!(
+        bytes.len() % 32 == 0,
+        "Bytes must be divisible by 32 to split into chunks"
+    );
 }
 
 pub fn b256_to_u256(num: B256) -> U256 {
@@ -126,7 +129,11 @@ pub fn be_bytes_to_safe_address(bytes: &[u8]) -> Option<Address> {
 
     let (zero_bytes, address_bytes) = bytes.split_at(bytes.len() - 20);
 
-    if zero_bytes.iter().any(|b| *b != 0) { None } else { Some(Address::from_slice(address_bytes)) }
+    if zero_bytes.iter().any(|b| *b != 0) {
+        None
+    } else {
+        Some(Address::from_slice(address_bytes))
+    }
 }
 
 /// Converts `b256` value as BE into the u32

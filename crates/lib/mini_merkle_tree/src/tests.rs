@@ -4,8 +4,16 @@ use super::*;
 
 #[test]
 fn tree_depth_is_computed_correctly() {
-    const TREE_SIZES_AND_DEPTHS: &[(usize, usize)] =
-        &[(1, 0), (2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6), (128, 7)];
+    const TREE_SIZES_AND_DEPTHS: &[(usize, usize)] = &[
+        (1, 0),
+        (2, 1),
+        (4, 2),
+        (8, 3),
+        (16, 4),
+        (32, 5),
+        (64, 6),
+        (128, 7),
+    ];
 
     for &(size, depth) in TREE_SIZES_AND_DEPTHS {
         println!("tree_depth_by_size({size})");
@@ -137,7 +145,11 @@ fn verify_merkle_proof(
 
     let mut hash = KeccakHasher.hash_bytes(item);
     for path_item in merkle_path {
-        let (lhs, rhs) = if index % 2 == 0 { (&hash, path_item) } else { (path_item, &hash) };
+        let (lhs, rhs) = if index % 2 == 0 {
+            (&hash, path_item)
+        } else {
+            (path_item, &hash)
+        };
         hash = KeccakHasher.compress(lhs, rhs);
         index /= 2;
     }

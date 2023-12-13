@@ -22,7 +22,18 @@ pub use web3::{Address, Bytes, Log, B128, B256, U128, U256, U64};
 
 /// Account place in the global state tree is uniquely identified by its address.
 /// Binary this type is represented by 160 bit big-endian representation of account address.
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Hash, Ord, PartialOrd)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Eq,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    Hash,
+    Ord,
+    PartialOrd
+)]
 pub struct AccountTreeId {
     address: Address,
 }
@@ -50,7 +61,9 @@ impl AccountTreeId {
 
 impl Default for AccountTreeId {
     fn default() -> Self {
-        Self { address: Address::ZERO }
+        Self {
+            address: Address::ZERO,
+        }
     }
 }
 
@@ -210,7 +223,10 @@ mod tests {
     fn test_from_str_too_big_chain_id() {
         let input = "18446744073709551615"; // 2^64 - 1
         let result = L2ChainId::from_str(input);
-        assert_eq!(result, Err(format!("Too big chain ID. MAX: {}", L2ChainId::max().0)));
+        assert_eq!(
+            result,
+            Err(format!("Too big chain ID. MAX: {}", L2ChainId::max().0))
+        );
     }
 
     #[test]

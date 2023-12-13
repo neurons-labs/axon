@@ -18,7 +18,10 @@ pub struct SmallMap<V> {
 
 impl<V> Default for SmallMap<V> {
     fn default() -> Self {
-        Self { bitmap: 0, values: Vec::new() }
+        Self {
+            bitmap: 0,
+            values: Vec::new(),
+        }
     }
 }
 
@@ -26,8 +29,14 @@ impl<V> SmallMap<V> {
     const CAPACITY: u8 = 16;
 
     pub fn with_capacity(capacity: usize) -> Self {
-        assert!(capacity <= usize::from(Self::CAPACITY), "capacity is too large");
-        Self { bitmap: 0, values: Vec::with_capacity(capacity) }
+        assert!(
+            capacity <= usize::from(Self::CAPACITY),
+            "capacity is too large"
+        );
+        Self {
+            bitmap: 0,
+            values: Vec::with_capacity(capacity),
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -124,7 +133,10 @@ pub(crate) fn merge_by_index<T>(parts: Vec<Vec<(usize, T)>>) -> Vec<(usize, T)> 
         .into_iter()
         .map(|part| part.into_iter().peekable())
         .collect();
-    let merging_iter = MergingIter { iterators, total_len };
+    let merging_iter = MergingIter {
+        iterators,
+        total_len,
+    };
     merging_iter.collect()
 }
 
@@ -184,13 +196,19 @@ mod tests {
         assert_eq!(map.get(7), Some(&"7"));
         assert_eq!(map.get(2), Some(&"2"));
         assert_eq!(map.get(0), Some(&"0"));
-        assert_eq!(map.iter().collect::<Vec<_>>(), [(0, &"0"), (2, &"2"), (7, &"7")]);
+        assert_eq!(
+            map.iter().collect::<Vec<_>>(),
+            [(0, &"0"), (2, &"2"), (7, &"7")]
+        );
 
         map.insert(2, "2!");
         assert_eq!(map.get(7), Some(&"7"));
         assert_eq!(map.get(2), Some(&"2!"));
         assert_eq!(map.get(0), Some(&"0"));
-        assert_eq!(map.iter().collect::<Vec<_>>(), [(0, &"0"), (2, &"2!"), (7, &"7")]);
+        assert_eq!(
+            map.iter().collect::<Vec<_>>(),
+            [(0, &"0"), (2, &"2!"), (7, &"7")]
+        );
     }
 
     #[test]
@@ -237,7 +255,16 @@ mod tests {
 
         assert_eq!(
             merged,
-            [(1, "0"), (0, "1"), (2, "2"), (2, "3"), (1, "4"), (0, "5"), (0, "6"), (1, "7")]
+            [
+                (1, "0"),
+                (0, "1"),
+                (2, "2"),
+                (2, "3"),
+                (1, "4"),
+                (0, "5"),
+                (0, "6"),
+                (1, "7")
+            ]
         );
     }
 }
