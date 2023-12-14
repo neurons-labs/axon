@@ -16,6 +16,7 @@ axon_merkle_tree = { path = "crates/lib/merkle_tree" }
 axon_types = { path = "crates/lib/types" }
 axon_contracts = { path = "crates/lib/contracts" }
 axon_constants = { path = "crates/lib/constants" }
+axon_dal = { path = "crates/lib/dal" }
 
 vlog = { path = "crates/lib/vlog" }
 

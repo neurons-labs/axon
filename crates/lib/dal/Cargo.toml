@@ -1,0 +1,28 @@
+[package]
+name = "axon_dal"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+vetric.workspace = true
+
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+
+sqlx = { version = "0.7", default-features = false, features = [
+    "runtime-tokio",
+    "tls-native-tls",
+    "postgres",
+    "bigdecimal",
+    "chrono",
+    "json",
+    "migrate",
+    "ipnetwork",
+] }
+
+url = "2.5"
+rand = "0.8"
+
+[dev-dependencies]
+assert_matches = "1.5"
