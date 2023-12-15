@@ -326,6 +326,9 @@ name = "axon_constants"
 version = "0.1.0"
 dependencies = [
  "axon_primitives",
+ "axon_utils",
+ "num",
+ "once_cell",
 ]
 
 [[package]]
@@ -340,10 +343,6 @@ dependencies = [
  "serde",
  "serde_json",
 ]
-
-[[package]]
-name = "axon_core"
-version = "0.1.0"
 
 [[package]]
 name = "axon_dal"
@@ -417,6 +416,7 @@ name = "axon_state"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "axon_dal",
  "axon_storage",
  "axon_types",
  "axon_utils",

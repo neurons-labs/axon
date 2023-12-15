@@ -1,0 +1,11 @@
+[package]
+name = "axon_constants"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axon_primitives.workspace = true
+axon_utils.workspace = true
+
+num = "0.4"
+once_cell = { workspace = true }
