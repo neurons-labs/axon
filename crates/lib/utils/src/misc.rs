@@ -26,6 +26,8 @@ pub fn expand_memory_contents(packed: &[(usize, U256)], memory_size_bytes: usize
     result.to_vec()
 }
 
+pub const U256ONE: U256 = U256::from_limbs([1, 0, 0, 0]);
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,0 +1,21 @@
+[package]
+name = "axon_state"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+axon_types.workspace = true
+axon_utils.workspace = true
+axon_storage.workspace = true
+axon_dal.workspace = true
+vetric.workspace = true
+
+anyhow = { workspace = true }
+tokio = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }
+itertools = { workspace = true }
+mini-moka = "0.10"
+
+[dev-dependencies]
+rand = "0.8"
+tempfile = "3.8"
