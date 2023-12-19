@@ -10,11 +10,13 @@ mod cache;
 mod in_memory;
 mod postgres;
 mod rocksdb;
+mod storage_view;
 
 pub use self::{
     in_memory::{InMemoryStorage, IN_MEMORY_STORAGE_DEFAULT_NETWORK_ID},
     postgres::{PostgresStorage, PostgresStorageCaches},
     rocksdb::RocksdbStorage,
+    storage_view::{StorageView, StorageViewMetrics},
 };
 
 /// Functionality to read from the VM storage.
