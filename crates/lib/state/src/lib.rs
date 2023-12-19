@@ -7,9 +7,15 @@ use axon_types::{
 };
 
 mod cache;
+mod in_memory;
 mod postgres;
+mod rocksdb;
 
-pub use self::postgres::{PostgresStorage, PostgresStorageCaches};
+pub use self::{
+    in_memory::{InMemoryStorage, IN_MEMORY_STORAGE_DEFAULT_NETWORK_ID},
+    postgres::{PostgresStorage, PostgresStorageCaches},
+    rocksdb::RocksdbStorage,
+};
 
 /// Functionality to read from the VM storage.
 pub trait ReadStorage: fmt::Debug {
