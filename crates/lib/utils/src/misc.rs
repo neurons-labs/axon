@@ -23,7 +23,7 @@ pub fn expand_memory_contents(packed: &[(usize, U256)], memory_size_bytes: usize
         result[(offset * 32)..((offset + 1) * 32)].copy_from_slice(&value_bytes);
     }
 
-    result.to_vec()
+    result
 }
 
 pub const U256ONE: U256 = U256::from_limbs([1, 0, 0, 0]);
